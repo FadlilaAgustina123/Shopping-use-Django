@@ -1,0 +1,297 @@
+{% extends 'base.html' %} {% load static %} {% load humanize %} {% block title %} My Cart {% endblock title %} {% block content %}
+<!-- Import Google Fonts Montserrat -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<!-- Custom CSS -->
+<style>
+  body {
+    font-family: "Montserrat", sans-serif;
+    background-color: #f7f7f7;
+  }
+
+  .container {
+    margin-top: 50px;
+  }
+
+  .cart-header {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #707f90;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .cart-table {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(118, 85, 85, 0.1);
+  }
+
+  .cart-table th,
+  .cart-table td {
+    text-align: center;
+    padding: 15px;
+    font-size: 1rem;
+    color: #dabebe;
+  }
+
+  .cart-table th {
+    background-color: #e3f2fd;
+    color: #897272;
+    font-weight: 500;
+  }
+
+  .cart-table td {
+    vertical-align: middle;
+  }
+
+  .btn {
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-primary {
+    background-color: #a5beda;
+    color: white;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background-color: #132638;
+  }
+
+  .btn-danger {
+    background-color: #e2a29b;
+    color: white;
+    border: none;
+  }
+
+  .btn-danger:hover {
+    background-color: #d19e99;
+  }
+
+  .checkout-btn {
+    background-color: white;
+    color: #5d738c;
+    border: 2px solid #95b3d7;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .checkout-btn:hover {
+    background-color: #85b1e3;
+    color: white;
+  }
+</style>
+
+<div class="container">
+  <div class="cart-table border rounded p-4 m-4">
+    <p class="cart-header">My Cart</p>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Product Name</th>
+          <th>Quantity</th>
+          <th>Each Price</th>
+          <th>Total Price</th>
+          <th></th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cart in cart %}
+        <tr id="cart-item-{{cart.product.id}}">
+          <td>{{forloop.counter}}</td>
+          <td>{{cart.product.name}}</td>
+          <td id="quantity-{{cart.product.id}}">{{cart.quantity}}</td>
+          <td>Rp. {{ cart.product.price|intcomma }}</td>
+          <td>Rp. <span id="total-price-{{cart.product.id}}"> {{ cart.product.price|intcomma|floatformat:0 }} </span></td>
+          <td>
+            <input type="button" pid="{{cart.product.id}}" class="minus-cart btn btn-primary" value="-" />
+            <input type="button" pid="{{cart.product.id}}" class="plus-cart btn btn-primary" value="+" />
+          </td>
+          <td>
+            <input type="button" pid="{{cart.product.id}}" class="btn btn-danger btn-sm remove-cart" value="Delete" />
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="text-right mt-4">
+      <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" class="checkout-btn">Checkout</a>
+    </div>
+  </div>
+</div>
+
+<!--CHECKOUT-->
+<!-- CHECKOUT MODAL -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+  body {
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .modal-content {
+    border-radius: 10px;
+    border: none;
+  }
+
+  .modal-header {
+    background-color: #e3f2fd; /* Light Blue */
+    border-bottom: none;
+    color: #39546b;
+  }
+
+  .modal-title {
+    font-weight: 600;
+  }
+
+  .btn-close {
+    background-color: #3b4854;
+    border-radius: 50%;
+  }
+
+  .modal-body {
+    background-color: #f8f9fa;
+  }
+
+  .form-control {
+    border-radius: 5px;
+    border: 1px solid #bad9f4;
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #78a2c7;
+  }
+
+  .checkout-btn {
+    background-color: #58626b;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+  }
+
+  .checkout-btn:hover {
+    background-color: #437eb1;
+    cursor: pointer;
+  }
+
+  .modal-footer {
+    background-color: #e3f2fd;
+    border-top: none;
+  }
+</style>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Complete Your Order</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="/checkout" method="POST">
+          {% csrf_token %}
+          <div class="form-group mt-3">
+            <label class="form-label" for="name">Name</label>
+            <input required type="text" name="name" id="name" class="form-control" placeholder="Enter your name" />
+          </div>
+          <div class="form-group mt-3">
+            <label class="form-label" for="address">Shipping Address</label>
+            <input required type="text" name="address" id="address" class="form-control" placeholder="Enter your shipping address" />
+          </div>
+          <div class="form-group mt-3">
+            <label class="form-label" for="mobile">Mobile Number</label>
+            <input required type="text" name="mobile" id="mobile" class="form-control" placeholder="Enter your mobile number" />
+          </div>
+
+          <div class="text-center mt-4">
+            <input type="submit" class="checkout-btn" value="Make Payment" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  var jq = jQuery.noConflict();
+  jq(document).on("click", ".plus-cart", function () {
+    var product_id = jq(this).attr("pid");
+    jq.ajax({
+      type: "GET",
+      url: "{% url 'plus_cart' %}",
+      data: {
+        prod_id: product_id,
+      },
+      success: function (response) {
+        console.log(response); // Periksa data yang diterima
+        jq("#quantity-" + product_id).text(response.quantity);
+        jq("#total-price-" + product_id).text(response.total_price);
+        jq("#total-items").text(response.total_items);
+      },
+    });
+  });
+
+  jq(document).on("click", ".minus-cart", function () {
+    var product_id = jq(this).attr("pid");
+    jq.ajax({
+      type: "GET",
+      url: "{% url 'minus_cart' %}",
+      data: {
+        prod_id: product_id,
+      },
+      success: function (response) {
+        console.log(response); // Periksa data yang diterima
+        jq("#quantity-" + product_id).text(response.quantity);
+        jq("#total-price-" + product_id).text(response.total_price);
+        jq("#total-items").text(response.total_items);
+      },
+    });
+  });
+
+  jq(document).on("click", ".remove-cart", function () {
+    var product_id = jq(this).attr("pid");
+
+    jq.ajax({
+      type: "GET",
+      url: "{% url 'remove_cart' %}", // Pastikan URL ini benar sesuai dengan Django URL pattern
+      data: {
+        prod_id: product_id,
+      },
+      success: function (response) {
+        console.log(response); // Lihat response dari server
+
+        // Jika item berhasil dihapus, perbarui UI
+        if (response.message) {
+          // Hapus item dari tampilan
+          jq("#cart-item-" + product_id).remove();
+
+          // Perbarui total item di keranjang
+          jq("#total-items").text(response.total_items);
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("Error:", error);
+      },
+    });
+  });
+</script>
+{% endblock %}
